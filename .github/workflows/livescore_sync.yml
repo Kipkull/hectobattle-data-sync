@@ -1,0 +1,44 @@
+name: Livescore Lineup Sync
+
+# R137 路径 B: GH Actions runner（IP 池干净）+ 推回 hectobattle backend.
+# 详见主 repo docs/lineup-sync-architecture.md
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Limit number of matches (0 = all)"
+        required: false
+        default: "0"
+      dry_run:
+        description: "Dry run (1 = no push, just log)"
+        required: false
+        default: "0"
+  schedule:
+    - cron: '0 * * * *'   # 每小时整点 UTC
+
+concurrency:
+  group: livescore-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install httpx
+        run: pip install httpx
+
+      - name: Run livescore lineup sync
+        env:
+          API_BASE_URL: https://hectobattle-api-244173-4-1420524933.sh.run.tcloudbase.com
+          ADMIN_TOKEN: ${{ secrets.HECTOBATTLE_ADMIN_TOKEN }}
+          LIMIT: ${{ github.event.inputs.limit }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: python livescore_lineup_sync.py
