@@ -15,7 +15,7 @@ on:
         required: false
         default: "0"
   schedule:
-    - cron: '0 * * * *'   # 每小时整点 UTC
+    - cron: '5 * * * *'   # 每小时第 5 分钟 (UTC) 跑, 避开 GH cron 整点高峰
 
 concurrency:
   group: livescore-sync
