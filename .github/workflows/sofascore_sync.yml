@@ -1,0 +1,45 @@
+name: Sofascore Lineup Sync
+
+# R137 Phase 2: GH Actions runner（IP 池干净）+ 推回 hectobattle backend.
+# 与 livescore 错峰 30 min, 双源覆盖, 互为 fallback.
+# 详见主 repo docs/lineup-sync-architecture.md
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Limit number of matches (0 = all)"
+        required: false
+        default: "0"
+      dry_run:
+        description: "Dry run (1 = no push, just log)"
+        required: false
+        default: "0"
+  schedule:
+    - cron: '35 * * * *'   # 每小时第 35 分钟 (UTC), 错峰 livescore (5 分) 30 min
+
+concurrency:
+  group: sofascore-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install httpx
+        run: pip install httpx
+
+      - name: Run sofascore lineup sync
+        env:
+          API_BASE_URL: https://hectobattle-api-244173-4-1420524933.sh.run.tcloudbase.com
+          ADMIN_TOKEN: ${{ secrets.HECTOBATTLE_ADMIN_TOKEN }}
+          LIMIT: ${{ github.event.inputs.limit }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: python sofascore_lineup_sync.py

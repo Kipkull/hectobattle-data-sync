@@ -7,8 +7,10 @@ GitHub Actions cron 仓库，绕开腾讯云 IP 段被反爬封禁，从 GH runn
 
 | 脚本 | 数据源 | Cron | 状态 |
 |---|---|---|---|
-| `livescore_lineup_sync.py` | livescore.com | `0 * * * *` 每小时整点 | ✅ |
-| `sofascore_lineup_sync.py` | api.sofascore.com | `30 * * * *` 每小时半点 | TODO |
+| `livescore_lineup_sync.py` | livescore.com | `5 * * * *` 每小时 5 分 | ✅ |
+| `sofascore_lineup_sync.py` | api.sofascore.com | `35 * * * *` 每小时 35 分 | ✅ |
+
+错峰 30 min, 双源覆盖, 互为 fallback.
 
 ## 配置
 
